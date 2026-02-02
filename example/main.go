@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	gt "gopkg.gilang.dev/google-translate"
-	"gopkg.gilang.dev/google-translate/params"
+	gt "gopkg.gilang.dev/translator"
+	"gopkg.gilang.dev/translator/params"
 )
 
 func main() {

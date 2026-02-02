@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"golang.org/x/text/language"
-	"gopkg.gilang.dev/google-translate/params"
+	"gopkg.gilang.dev/translator/params"
 )
 
 func TranslateWithParam(value params.Translate) (*Translated, error) {
