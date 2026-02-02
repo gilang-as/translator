@@ -24,9 +24,8 @@ func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL strin
 	// Create a new req client instance to avoid shared state
 	client := req.NewClient().SetTLSFingerprintRandomized()
 	
-	// If a custom HTTP client is provided, copy its configuration to the req client
-	// Note: Only Transport and Timeout are copied. Other settings like CheckRedirect
-	// and Jar are not supported when using req.Client wrapper.
+	// If a custom HTTP client is provided, copy its configuration to the req client.
+	// This includes Timeout, Transport, CheckRedirect, and Jar settings.
 	if httpClient != nil {
 		underlyingClient := client.GetClient()
 		// Copy timeout from provided client
