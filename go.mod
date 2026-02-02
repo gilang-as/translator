@@ -1,4 +1,4 @@
-module gopkg.gilang.dev/translator
+module gopkg.gilang.dev/translator/v2
 
 go 1.25
 

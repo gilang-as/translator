@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.gilang.dev/translator/params"
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 func TestTranslateWithParam(t *testing.T) {

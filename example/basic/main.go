@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	gt "gopkg.gilang.dev/translator"
-	"gopkg.gilang.dev/translator/params"
+	gt "gopkg.gilang.dev/translator/v2"
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 func main() {

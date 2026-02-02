@@ -1,13 +1,9 @@
-# translator
+# translator v2
 
 [![Actions Status](https://github.com/gilang-as/translator/actions/workflows/test.yaml/badge.svg)](https://github.com/gilang-as/translator/actions)
 
 > [!NOTE]
-> **Looking for the previous version?** The legacy Google Translate-only package is still available:
-> ```bash
-> go get -u gopkg.gilang.dev/google-translate@v1
-> ```
-> Documentation: [v1 branch](https://github.com/gilang-as/translator/tree/v1)
+> This repository hosts **v2** (multi-backend). The legacy v1 Google Translate-only module is **deprecated**; use v2 for all new development.
 
 A **free** and **unlimited** translation API supporting multiple backends (Google Translate, DeepL).
 
@@ -27,13 +23,30 @@ A **free** and **unlimited** translation API supporting multiple backends (Googl
 ## Install
 
 ```bash
-go get gopkg.gilang.dev/translator
+go get gopkg.gilang.dev/translator/v2
 ```
+
+## Migration from v1
+
+If you are upgrading from v1:
+
+1. Update imports to use the v2 module path:
+    - `gopkg.gilang.dev/translator/v2`
+    - `gopkg.gilang.dev/translator/v2/googletranslate`
+    - `gopkg.gilang.dev/translator/v2/deepl`
+    - `gopkg.gilang.dev/translator/v2/params`
+2. Update your module requirement:
+
+```bash
+go get gopkg.gilang.dev/translator/v2@latest
+```
+
+3. Replace any legacy Google Translate-only usage with the v2 `googletranslate` subpackage shown below.
 
 ## Quick Start
 
 ```go
-import gt "gopkg.gilang.dev/translator"
+import gt "gopkg.gilang.dev/translator/v2"
 
 ctx := context.Background()
 
@@ -91,7 +104,7 @@ gt.TranslateWith(ctx, deepl, "Hello", "fr")
 ### Google Translate Client
 
 ```go
-import "gopkg.gilang.dev/translator/googletranslate"
+import "gopkg.gilang.dev/translator/v2/googletranslate"
 
 client := googletranslate.New(
     googletranslate.WithHost("google.co.id"),
@@ -109,7 +122,7 @@ client.SetProxyURL("http://proxy:8080")
 ### DeepL Client
 
 ```go
-import "gopkg.gilang.dev/translator/deepl"
+import "gopkg.gilang.dev/translator/v2/deepl"
 
 client := deepl.New(
     deepl.WithProxyURL("http://proxy:8080"),
@@ -156,7 +169,7 @@ See the [example](./example) directory for complete examples:
 Use ISO 639-1 language codes (e.g., "en", "fr", "id", "ja"). Common codes are available in the `params` package:
 
 ```go
-import "gopkg.gilang.dev/translator/params"
+import "gopkg.gilang.dev/translator/v2/params"
 
 params.ENGLISH     // "en"
 params.INDONESIAN  // "id"

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 
-	gt "gopkg.gilang.dev/translator"
-	"gopkg.gilang.dev/translator/deepl"
-	"gopkg.gilang.dev/translator/params"
+	gt "gopkg.gilang.dev/translator/v2"
+	"gopkg.gilang.dev/translator/v2/deepl"
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 func main() {
@@ -17,10 +17,10 @@ func main() {
 	// Create DeepL client with custom options
 	fmt.Println("=== DeepL Translate ===")
 	client := deepl.New(
-		// Optional: Set proxy URL
-		// deepl.WithProxyURL("http://proxy:8080"),
-		// Optional: Set DeepL session for Pro features
-		// deepl.WithDLSession("your-session-token"),
+	// Optional: Set proxy URL
+	// deepl.WithProxyURL("http://proxy:8080"),
+	// Optional: Set DeepL session for Pro features
+	// deepl.WithDLSession("your-session-token"),
 	)
 
 	result, err := client.Translate(ctx, "Hello, how are you?", "en", "id")

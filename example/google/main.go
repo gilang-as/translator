@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	gt "gopkg.gilang.dev/translator"
-	"gopkg.gilang.dev/translator/googletranslate"
-	"gopkg.gilang.dev/translator/params"
+	gt "gopkg.gilang.dev/translator/v2"
+	"gopkg.gilang.dev/translator/v2/googletranslate"
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 func main() {

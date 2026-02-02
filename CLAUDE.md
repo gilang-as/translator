@@ -2,7 +2,7 @@
 
 ## Project
 
-Go library for translation API wrapper supporting multiple backends (Google Translate, DeepL). Module: `gopkg.gilang.dev/translator`
+Go library for translation API wrapper supporting multiple backends (Google Translate, DeepL). Module: `gopkg.gilang.dev/translator/v2`
 
 ## Commands
 
@@ -50,7 +50,7 @@ gt.TranslateWith(ctx, google, text, toLanguage)
 ### Google Translate client
 
 ```go
-import "gopkg.gilang.dev/translator/googletranslate"
+import "gopkg.gilang.dev/translator/v2/googletranslate"
 
 client := googletranslate.New(
     googletranslate.WithHost("google.co.id"),
@@ -67,7 +67,7 @@ client.SetProxyURL("http://proxy:8080")
 ### DeepL client
 
 ```go
-import "gopkg.gilang.dev/translator/deepl"
+import "gopkg.gilang.dev/translator/v2/deepl"
 
 client := deepl.New(
     deepl.WithProxyURL("http://proxy:8080"),

@@ -6,9 +6,9 @@ import (
 	"sync"
 
 	"golang.org/x/text/language"
-	"gopkg.gilang.dev/translator/deepl"
-	"gopkg.gilang.dev/translator/googletranslate"
-	"gopkg.gilang.dev/translator/params"
+	"gopkg.gilang.dev/translator/v2/deepl"
+	"gopkg.gilang.dev/translator/v2/googletranslate"
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 // Translator is the common interface for all translation clients.
