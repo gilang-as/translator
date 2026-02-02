@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	"golang.org/x/text/language"
+	"gopkg.gilang.dev/translator/googletranslate"
 	"gopkg.gilang.dev/translator/params"
 )
 
 // defaultClient is the default GoogleTranslate client used by package-level functions.
-var defaultClient = NewGoogleTranslate()
+var defaultClient = googletranslate.New()
 
 func TranslateWithParam(ctx context.Context, value params.Translate) (*Translated, error) {
 	var (
