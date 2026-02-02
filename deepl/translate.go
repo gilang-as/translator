@@ -95,10 +95,10 @@ func makeRequestWithBody(postStr string, proxyURL string, dlSession string) (gjs
 	return gjson.ParseBytes(body), nil
 }
 
-// TranslateByDeepLX performs translation using DeepL API
-func TranslateByDeepLX(sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLXTranslationResult, error) {
+// TranslateByDeepL performs translation using DeepL API
+func TranslateByDeepL(sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
 	if text == "" {
-		return DeepLXTranslationResult{
+		return DeepLTranslationResult{
 			Code:    http.StatusNotFound,
 			Message: "No text to translate",
 		}, nil
@@ -139,7 +139,7 @@ func TranslateByDeepLX(sourceLang, targetLang, text string, tagHandling string, 
 	// Make translation request
 	result, err := makeRequestWithBody(postStr, proxyURL, dlSession)
 	if err != nil {
-		return DeepLXTranslationResult{
+		return DeepLTranslationResult{
 			Code:    http.StatusServiceUnavailable,
 			Message: err.Error(),
 		}, nil
@@ -148,7 +148,7 @@ func TranslateByDeepLX(sourceLang, targetLang, text string, tagHandling string, 
 	// Process translation results using new format
 	textsArray := result.Get("result.texts").Array()
 	if len(textsArray) == 0 {
-		return DeepLXTranslationResult{
+		return DeepLTranslationResult{
 			Code:    http.StatusServiceUnavailable,
 			Message: "Translation failed",
 		}, nil
@@ -157,7 +157,7 @@ func TranslateByDeepLX(sourceLang, targetLang, text string, tagHandling string, 
 	// Get main translation
 	mainText := textsArray[0].Get("text").String()
 	if mainText == "" {
-		return DeepLXTranslationResult{
+		return DeepLTranslationResult{
 			Code:    http.StatusServiceUnavailable,
 			Message: "Translation failed",
 		}, nil
@@ -179,7 +179,7 @@ func TranslateByDeepLX(sourceLang, targetLang, text string, tagHandling string, 
 		sourceLang = detectedLang
 	}
 
-	return DeepLXTranslationResult{
+	return DeepLTranslationResult{
 		Code:         http.StatusOK,
 		ID:           id,
 		Data:         mainText,

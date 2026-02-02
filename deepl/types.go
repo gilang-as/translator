@@ -110,8 +110,8 @@ type SentenceResponse struct {
 	IDS  []int  `json:"ids"` // Added IDS
 }
 
-// DeepLXTranslationResult represents the final translation result
-type DeepLXTranslationResult struct {
+// DeepLTranslationResult represents the final translation result
+type DeepLTranslationResult struct {
 	Code         int      `json:"code"`
 	ID           int64    `json:"id"`
 	Message      string   `json:"message,omitempty"`
