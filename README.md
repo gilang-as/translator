@@ -180,10 +180,6 @@ go test -bench=. -benchmem ./...
 ### Google Translate
 
 ```
-goos: darwin
-goarch: amd64
-cpu: Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz
-
 BenchmarkNew-12                     20029788        58.15 ns/op      112 B/op       2 allocs/op
 BenchmarkNewWithOptions-12           8231678       144.0 ns/op       200 B/op       5 allocs/op
 BenchmarkHost-12                    85322860        13.76 ns/op        0 B/op       0 allocs/op
@@ -199,10 +195,6 @@ BenchmarkTranslateConcurrent-12            4    267211196 ns/op  20572356 B/op  
 ### DeepL
 
 ```
-goos: darwin
-goarch: amd64
-cpu: Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz
-
 BenchmarkNew-12                     18704745        62.26 ns/op      128 B/op       2 allocs/op
 BenchmarkNewWithOptions-12           5821923       216.1 ns/op       264 B/op       7 allocs/op
 BenchmarkHost-12                    91805458        13.63 ns/op        0 B/op       0 allocs/op
