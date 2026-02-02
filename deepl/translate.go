@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/flate"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,7 +19,7 @@ import (
 )
 
 // makeRequestWithBody makes an HTTP request with pre-formatted body using minimal headers
-func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
+func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
 	urlFull := "https://www2.deepl.com/jsonrpc"
 
 	// Create a new req client instance to avoid shared state
@@ -73,6 +74,7 @@ func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL strin
 
 	// Make the request
 	r := client.R()
+	r.SetContext(ctx)
 	r.Headers = headers
 	resp, err := r.
 		SetBody(bytes.NewReader([]byte(postStr))).
@@ -116,7 +118,7 @@ func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL strin
 }
 
 // TranslateByDeepL performs translation using DeepL API
-func TranslateByDeepL(httpClient *http.Client, sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
+func TranslateByDeepL(ctx context.Context, httpClient *http.Client, sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
 	if text == "" {
 		return DeepLTranslationResult{
 			Code:    http.StatusNotFound,
@@ -157,7 +159,7 @@ func TranslateByDeepL(httpClient *http.Client, sourceLang, targetLang, text stri
 	postStr = handlerBodyMethod(id, postStr)
 
 	// Make translation request
-	result, err := makeRequestWithBody(httpClient, postStr, proxyURL, dlSession)
+	result, err := makeRequestWithBody(ctx, httpClient, postStr, proxyURL, dlSession)
 	if err != nil {
 		return DeepLTranslationResult{
 			Code:    http.StatusServiceUnavailable,
