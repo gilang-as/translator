@@ -5,7 +5,7 @@
 > [!NOTE]
 > **Looking for the previous version?** The legacy Google Translate-only package is still available:
 > ```bash
-> go get gopkg.gilang.dev/translator@v1
+> go get -u gopkg.gilang.dev/google-translate@v1
 > ```
 > Documentation: [v1 branch](https://github.com/gilang-as/translator/tree/v1)
 
