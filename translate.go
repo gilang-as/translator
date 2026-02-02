@@ -164,13 +164,13 @@ func TranslateWithParam(ctx context.Context, value params.Translate) (*Translate
 		return nil, fmt.Errorf("To Value is required!")
 	}
 	if _, err := language.Parse(value.To); err != nil {
-		return nil, fmt.Errorf("To Value is't valid!")
+		return nil, fmt.Errorf("To Value isn't valid!")
 	}
 	to = value.To
 
 	if value.From != "" {
 		if _, err := language.Parse(value.From); err != nil {
-			return nil, fmt.Errorf("From Value is't valid!")
+			return nil, fmt.Errorf("From Value isn't valid!")
 		}
 		from = value.From
 	}
@@ -186,7 +186,7 @@ func Translate(ctx context.Context, text, toLanguage string) (*Translated, error
 		return nil, fmt.Errorf("To Value is required!")
 	}
 	if _, err := language.Parse(toLanguage); err != nil {
-		return nil, fmt.Errorf("To Value is't valid!")
+		return nil, fmt.Errorf("To Value isn't valid!")
 	}
 	return getTranslator().Translate(ctx, text, "auto", toLanguage)
 }
@@ -200,13 +200,13 @@ func ManualTranslate(ctx context.Context, text, fromLanguage, toLanguage string)
 		return nil, fmt.Errorf("From Value is required!")
 	}
 	if _, err := language.Parse(fromLanguage); err != nil {
-		return nil, fmt.Errorf("From Value is't valid!")
+		return nil, fmt.Errorf("From Value isn't valid!")
 	}
 	if toLanguage == "" {
 		return nil, fmt.Errorf("To Value is required!")
 	}
 	if _, err := language.Parse(toLanguage); err != nil {
-		return nil, fmt.Errorf("To Value is't valid!")
+		return nil, fmt.Errorf("To Value isn't valid!")
 	}
 	return getTranslator().Translate(ctx, text, fromLanguage, toLanguage)
 }
@@ -220,7 +220,7 @@ func TranslateWith(ctx context.Context, translator Translator, text, toLanguage 
 		return nil, fmt.Errorf("To Value is required!")
 	}
 	if _, err := language.Parse(toLanguage); err != nil {
-		return nil, fmt.Errorf("To Value is't valid!")
+		return nil, fmt.Errorf("To Value isn't valid!")
 	}
 	return translator.Translate(ctx, text, "auto", toLanguage)
 }
