@@ -61,6 +61,22 @@ func BenchmarkSetHostConcurrent(b *testing.B) {
 	})
 }
 
+func BenchmarkProxyURL(b *testing.B) {
+	gt := New(WithProxyURL("http://proxy:8080"))
+	b.ResetTimer()
+	for b.Loop() {
+		_ = gt.ProxyURL()
+	}
+}
+
+func BenchmarkSetProxyURL(b *testing.B) {
+	gt := New()
+	b.ResetTimer()
+	for b.Loop() {
+		gt.SetProxyURL("http://proxy:8080")
+	}
+}
+
 func BenchmarkTranslate(b *testing.B) {
 	gt := New()
 	ctx := context.Background()

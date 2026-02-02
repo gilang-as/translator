@@ -42,6 +42,23 @@ func TestSetHost(t *testing.T) {
 	}
 }
 
+func TestWithProxyURL(t *testing.T) {
+	proxyURL := "http://proxy:8080"
+	gt := New(WithProxyURL(proxyURL))
+	if gt.ProxyURL() != proxyURL {
+		t.Errorf("Expected proxyURL %s, got %s", proxyURL, gt.ProxyURL())
+	}
+}
+
+func TestSetProxyURL(t *testing.T) {
+	gt := New()
+	proxyURL := "http://proxy:8080"
+	gt.SetProxyURL(proxyURL)
+	if gt.ProxyURL() != proxyURL {
+		t.Errorf("Expected proxyURL %s, got %s", proxyURL, gt.ProxyURL())
+	}
+}
+
 func TestTranslate(t *testing.T) {
 	gt := New()
 	data, err := gt.Translate(context.Background(), "Hello World", "en", "id")

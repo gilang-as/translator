@@ -22,9 +22,10 @@ const (
 
 // GoogleTranslate is a concurrency-safe client for the Google Translate API.
 type GoogleTranslate struct {
-	mu     sync.RWMutex
-	host   string
-	client *http.Client
+	mu       sync.RWMutex
+	host     string
+	client   *http.Client
+	proxyURL string
 }
 
 // Option is a functional option for configuring GoogleTranslate.
@@ -41,6 +42,13 @@ func WithHost(host string) Option {
 func WithHTTPClient(client *http.Client) Option {
 	return func(gt *GoogleTranslate) {
 		gt.client = client
+	}
+}
+
+// WithProxyURL sets a proxy URL for requests.
+func WithProxyURL(proxyURL string) Option {
+	return func(gt *GoogleTranslate) {
+		gt.proxyURL = proxyURL
 	}
 }
 
@@ -84,6 +92,44 @@ func (gt *GoogleTranslate) SetClient(client *http.Client) {
 	gt.client = client
 }
 
+// ProxyURL returns the current proxy URL.
+func (gt *GoogleTranslate) ProxyURL() string {
+	gt.mu.RLock()
+	defer gt.mu.RUnlock()
+	return gt.proxyURL
+}
+
+// SetProxyURL sets the proxy URL.
+func (gt *GoogleTranslate) SetProxyURL(proxyURL string) {
+	gt.mu.Lock()
+	defer gt.mu.Unlock()
+	gt.proxyURL = proxyURL
+}
+
+// getHTTPClient returns an HTTP client configured with proxy if set.
+func (gt *GoogleTranslate) getHTTPClient() *http.Client {
+	gt.mu.RLock()
+	defer gt.mu.RUnlock()
+
+	if gt.proxyURL == "" {
+		return gt.client
+	}
+
+	proxyURLParsed, err := url.Parse(gt.proxyURL)
+	if err != nil {
+		return gt.client
+	}
+
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURLParsed),
+	}
+
+	return &http.Client{
+		Transport: transport,
+		Timeout:   gt.client.Timeout,
+	}
+}
+
 type req struct {
 	FsId string `json:"f.sid"`
 	Bl   string `json:"bl"`
@@ -107,8 +153,9 @@ func extract(key string, value string) string {
 func (gt *GoogleTranslate) check(ctx context.Context) (*req, error) {
 	gt.mu.RLock()
 	host := gt.host
-	client := gt.client
 	gt.mu.RUnlock()
+
+	client := gt.getHTTPClient()
 
 	baseUrl := "https://translate." + host
 	request, err := http.NewRequestWithContext(ctx, "GET", baseUrl, nil)
@@ -166,8 +213,9 @@ type Translated struct {
 func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from string, to string) (*Translated, error) {
 	gt.mu.RLock()
 	host := gt.host
-	client := gt.client
 	gt.mu.RUnlock()
+
+	client := gt.getHTTPClient()
 
 	var (
 		rpcId   = "MkEWBc"
