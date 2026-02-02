@@ -18,7 +18,10 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// makeRequestWithBody makes an HTTP request with pre-formatted body using minimal headers
+// makeRequestWithBody makes an HTTP request with pre-formatted body using minimal headers.
+// The httpClient parameter allows customization of HTTP client settings such as timeout,
+// transport, redirect policy, and cookie jar. If httpClient is nil, default settings
+// of the underlying client are used.
 func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
 	urlFull := "https://www2.deepl.com/jsonrpc"
 
