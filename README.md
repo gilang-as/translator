@@ -1,3 +1,14 @@
+# ⚠️ Deprecated
+
+> This module has been renamed to:
+> 
+> 👉 https://gopkg.gilang.dev/translator
+> 
+> Last maintained version:
+> - v1.x.x (branch: v1)
+> 
+> Please migrate to the new module.
+
 # google-translate (Legacy)
 [![Actions Status](https://github.com/gilang-as/google-translate/actions/workflows/test.yaml/badge.svg)](https://github.com/gilang-as/google-translate/actions)
 
