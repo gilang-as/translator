@@ -29,17 +29,14 @@ func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr s
 	client := req.NewClient().SetTLSFingerprintRandomized()
 	
 	// If a custom HTTP client is provided, copy its configuration to the req client.
-	// This includes Timeout, Transport, CheckRedirect, and Jar settings.
+
+	// If a custom HTTP client is provided, copy safe configuration values to the req client.
+	// Note: We intentionally do NOT copy the Transport to avoid overriding the TLS
+	// fingerprinting configuration set by SetTLSFingerprintRandomized.
 	if httpClient != nil {
 		underlyingClient := client.GetClient()
-		// Copy timeout from provided client only if it is explicitly set (non-zero)
-		if httpClient.Timeout != 0 {
-			underlyingClient.Timeout = httpClient.Timeout
-		}
-		// Copy transport if available
-		if httpClient.Transport != nil {
-			underlyingClient.Transport = httpClient.Transport
-		}
+		// Copy timeout from provided client
+		underlyingClient.Timeout = httpClient.Timeout
 		// Copy CheckRedirect policy if available
 		if httpClient.CheckRedirect != nil {
 			underlyingClient.CheckRedirect = httpClient.CheckRedirect
