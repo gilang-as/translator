@@ -120,7 +120,12 @@ func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr s
 	return gjson.ParseBytes(body), nil
 }
 
-// TranslateByDeepL performs translation using DeepL API
+// TranslateByDeepL performs translation using DeepL API.
+// httpClient is the HTTP client used to send requests to DeepL, allowing callers to
+// customize timeouts, proxies, and other transport settings. sourceLang and targetLang
+// specify the source and target languages (use "auto" or empty sourceLang for auto-detect),
+// text is the content to translate, tagHandling controls how markup is treated, proxyURL
+// optionally configures an outbound proxy, and dlSession carries the DeepL session token.
 func TranslateByDeepL(ctx context.Context, httpClient *http.Client, sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
 	if text == "" {
 		return DeepLTranslationResult{
