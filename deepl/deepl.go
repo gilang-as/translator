@@ -153,7 +153,7 @@ func (d *DeepL) Translate(ctx context.Context, text string, from string, to stri
 	dlSession := d.dlSession
 	d.mu.RUnlock()
 
-	result, err := TranslateByDeepL(from, to, text, "", proxyURL, dlSession)
+	result, err := TranslateByDeepL(ctx, from, to, text, "", proxyURL, dlSession)
 	if err != nil {
 		return nil, err
 	}
