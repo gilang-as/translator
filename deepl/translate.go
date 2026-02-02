@@ -24,7 +24,9 @@ func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL strin
 	// Create a new req client instance to avoid shared state
 	client := req.NewClient().SetTLSFingerprintRandomized()
 	
-	// If a custom HTTP client is provided, use its transport and configuration
+	// If a custom HTTP client is provided, copy its configuration to the req client
+	// Note: Only Transport and Timeout are copied. Other settings like CheckRedirect
+	// and Jar are not supported when using req.Client wrapper.
 	if httpClient != nil {
 		underlyingClient := client.GetClient()
 		// Copy timeout from provided client
@@ -32,6 +34,14 @@ func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL strin
 		// Copy transport if available
 		if httpClient.Transport != nil {
 			underlyingClient.Transport = httpClient.Transport
+		}
+		// Copy CheckRedirect policy if available
+		if httpClient.CheckRedirect != nil {
+			underlyingClient.CheckRedirect = httpClient.CheckRedirect
+		}
+		// Copy cookie jar if available
+		if httpClient.Jar != nil {
+			underlyingClient.Jar = httpClient.Jar
 		}
 	}
 
