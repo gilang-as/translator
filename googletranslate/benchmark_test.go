@@ -8,13 +8,13 @@ import (
 )
 
 func BenchmarkNew(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = New()
 	}
 }
 
 func BenchmarkNewWithOptions(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = New(
 			WithHost("google.co.id"),
 			WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
@@ -25,7 +25,7 @@ func BenchmarkNewWithOptions(b *testing.B) {
 func BenchmarkHost(b *testing.B) {
 	gt := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = gt.Host()
 	}
 }
@@ -33,7 +33,7 @@ func BenchmarkHost(b *testing.B) {
 func BenchmarkSetHost(b *testing.B) {
 	gt := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		gt.SetHost("google.com")
 	}
 }
@@ -64,7 +64,7 @@ func BenchmarkSetHostConcurrent(b *testing.B) {
 func BenchmarkProxyURL(b *testing.B) {
 	gt := New(WithProxyURL("http://proxy:8080"))
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = gt.ProxyURL()
 	}
 }
@@ -72,7 +72,7 @@ func BenchmarkProxyURL(b *testing.B) {
 func BenchmarkSetProxyURL(b *testing.B) {
 	gt := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		gt.SetProxyURL("http://proxy:8080")
 	}
 }
@@ -81,7 +81,7 @@ func BenchmarkTranslate(b *testing.B) {
 	gt := New()
 	ctx := context.Background()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_, _ = gt.Translate(ctx, "Hello", "en", "id")
 	}
 }
