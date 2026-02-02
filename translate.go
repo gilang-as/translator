@@ -164,13 +164,13 @@ func TranslateWithParam(ctx context.Context, value params.Translate) (*Translate
 		return nil, fmt.Errorf("To Value is required!")
 	}
 	if _, err := language.Parse(value.To); err != nil {
-		return nil, fmt.Errorf("To Value is't valid!")
+		return nil, fmt.Errorf("To Value isn't valid!")
 	}
 	to = value.To
 
 	if value.From != "" {
 		if _, err := language.Parse(value.From); err != nil {
-			return nil, fmt.Errorf("From Value is't valid!")
+			return nil, fmt.Errorf("From Value isn't valid!")
 		}
 		from = value.From
 	}
