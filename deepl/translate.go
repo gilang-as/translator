@@ -21,17 +21,17 @@ import (
 func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
 	urlFull := "https://www2.deepl.com/jsonrpc"
 
-	// Create a req client from the provided HTTP client
-	client := req.C().SetTLSFingerprintRandomized()
+	// Create a new req client instance to avoid shared state
+	client := req.NewClient().SetTLSFingerprintRandomized()
 	
 	// If a custom HTTP client is provided, use its transport and configuration
 	if httpClient != nil {
-		providedClient := client.GetClient()
+		underlyingClient := client.GetClient()
 		// Copy timeout from provided client
-		providedClient.Timeout = httpClient.Timeout
+		underlyingClient.Timeout = httpClient.Timeout
 		// Copy transport if available
 		if httpClient.Transport != nil {
-			providedClient.Transport = httpClient.Transport
+			underlyingClient.Transport = httpClient.Transport
 		}
 	}
 
