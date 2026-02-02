@@ -9,7 +9,8 @@ import (
 )
 
 func TestTranslate_v1(t *testing.T) {
-	data, err := gtranslate(context.Background(), "Halo Dunia", "id", "ja")
+	gt := NewGoogleTranslate()
+	data, err := gt.Translate(context.Background(), "Halo Dunia", "id", "ja")
 	if err != nil {
 		t.Error(err)
 		t.Fail()

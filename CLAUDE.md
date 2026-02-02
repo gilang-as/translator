@@ -7,22 +7,34 @@ Go library for Google Translate API wrapper. Module: `gopkg.gilang.dev/translato
 ## Commands
 
 ```bash
-go test -v -run TestTranslator   # Run tests
-go mod tidy                       # Tidy dependencies
+go test -v ./...    # Run tests
+go mod tidy         # Tidy dependencies
 ```
 
 ## Structure
 
 - `translate.go` - Public API functions
-- `api.go` - HTTP request/response handling
+- `gtranslate.go` - GoogleTranslate client and HTTP handling
 - `params/` - Parameter structs and language definitions
 
 ## API
 
+### Package-level functions (use default client)
+
 ```go
-gt.Translate(text, toLanguage string)                        // Auto-detect source
-gt.TranslateWithParam(params.Translate{Text, From, To})      // Struct-based
-gt.ManualTranslate(text, fromLanguage, toLanguage string)    // Explicit languages
+gt.Translate(ctx, text, toLanguage)                        // Auto-detect source
+gt.TranslateWithParam(ctx, params.Translate{Text, From, To})  // Struct-based
+gt.ManualTranslate(ctx, text, fromLanguage, toLanguage)    // Explicit languages
+```
+
+### Custom client with configuration
+
+```go
+client := gt.NewGoogleTranslate(
+    gt.WithHost("google.co.id"),                           // Custom host
+    gt.WithHTTPClient(&http.Client{Timeout: 30*time.Second}), // Custom HTTP client
+)
+client.Translate(ctx, text, from, to)
 ```
 
 ## Conventions
@@ -30,3 +42,4 @@ gt.ManualTranslate(text, fromLanguage, toLanguage string)    // Explicit languag
 - Package imported as `gt`
 - Language codes: ISO 639-1 (e.g., "en", "fr", "id")
 - Use `"auto"` for automatic language detection
+- All functions require `context.Context` as first parameter

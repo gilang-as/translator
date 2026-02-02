@@ -16,8 +16,43 @@ import (
 )
 
 const (
-	HOST = "google.com"
+	DefaultHost = "google.com"
 )
+
+// GoogleTranslate is a client for the Google Translate API.
+type GoogleTranslate struct {
+	Host   string
+	Client *http.Client
+}
+
+// Option is a functional option for configuring GoogleTranslate.
+type Option func(*GoogleTranslate)
+
+// WithHost sets a custom host for the Google Translate API.
+func WithHost(host string) Option {
+	return func(gt *GoogleTranslate) {
+		gt.Host = host
+	}
+}
+
+// WithHTTPClient sets a custom HTTP client.
+func WithHTTPClient(client *http.Client) Option {
+	return func(gt *GoogleTranslate) {
+		gt.Client = client
+	}
+}
+
+// NewGoogleTranslate creates a new GoogleTranslate client with the given options.
+func NewGoogleTranslate(opts ...Option) *GoogleTranslate {
+	gt := &GoogleTranslate{
+		Host:   DefaultHost,
+		Client: &http.Client{},
+	}
+	for _, opt := range opts {
+		opt(gt)
+	}
+	return gt
+}
 
 type req struct {
 	FsId string `json:"f.sid"`
@@ -39,12 +74,8 @@ func extract(key string, value string) string {
 	return replace[:len(replace)-1]
 }
 
-func check(ctx context.Context) (*req, error) {
-	var (
-		err     error
-		client  = &http.Client{}
-		baseUrl = "https://translate." + HOST
-	)
+func (gt *GoogleTranslate) check(ctx context.Context) (*req, error) {
+	baseUrl := "https://translate." + gt.Host
 	request, err := http.NewRequestWithContext(ctx, "GET", baseUrl, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Error! Initial Check Request.")
@@ -58,7 +89,7 @@ func check(ctx context.Context) (*req, error) {
 	request.Header.Set("sec-fetch-dest", "document")
 	request.Header.Set("sec-fetch-user", "?1")
 	request.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36")
-	response, err := client.Do(request)
+	response, err := gt.Client.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error! Bad Network.")
 	}
@@ -97,14 +128,14 @@ type Translated struct {
 	From          TranslateFrom `json:"from"`
 }
 
-func gtranslate(ctx context.Context, text string, from string, to string) (*Translated, error) {
+// Translate translates text from one language to another.
+func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from string, to string) (*Translated, error) {
 	var (
 		rpcId   = "MkEWBc"
 		err     error
-		client  = &http.Client{}
 		param   = url.Values{}
 		body    = url.Values{}
-		baseUrl = "https://translate." + HOST
+		baseUrl = "https://translate." + gt.Host
 	)
 
 	u, err := url.Parse(baseUrl + "/_/TranslateWebserverUi/data/batchexecute")
@@ -112,7 +143,7 @@ func gtranslate(ctx context.Context, text string, from string, to string) (*Tran
 		return nil, fmt.Errorf("Base URL not Valid : %s !", baseUrl)
 	}
 
-	checkData, err := check(ctx)
+	checkData, err := gt.check(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +211,7 @@ func gtranslate(ctx context.Context, text string, from string, to string) (*Tran
 	request.Header.Set("sec-fetch-mode", "cors")
 	request.Header.Set("sec-fetch-dest", "empty")
 	request.Header.Set("accept-language", "en-US,en;q=0.9")
-	response, err := client.Do(request)
+	response, err := gt.Client.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("Error! Bad Network.")
 	}

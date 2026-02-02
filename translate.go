@@ -8,6 +8,9 @@ import (
 	"gopkg.gilang.dev/translator/params"
 )
 
+// defaultClient is the default GoogleTranslate client used by package-level functions.
+var defaultClient = NewGoogleTranslate()
+
 func TranslateWithParam(ctx context.Context, value params.Translate) (*Translated, error) {
 	var (
 		text string
@@ -33,7 +36,7 @@ func TranslateWithParam(ctx context.Context, value params.Translate) (*Translate
 		}
 		from = value.From
 	}
-	return gtranslate(ctx, text, from, to)
+	return defaultClient.Translate(ctx, text, from, to)
 }
 
 func Translate(ctx context.Context, text, toLanguage string) (*Translated, error) {
@@ -47,7 +50,7 @@ func Translate(ctx context.Context, text, toLanguage string) (*Translated, error
 			return nil, fmt.Errorf("To Value is't valid!")
 		}
 	}
-	return gtranslate(ctx, text, "auto", toLanguage)
+	return defaultClient.Translate(ctx, text, "auto", toLanguage)
 }
 
 func ManualTranslate(ctx context.Context, text, fromLanguage, toLanguage string) (*Translated, error) {
@@ -68,5 +71,5 @@ func ManualTranslate(ctx context.Context, text, fromLanguage, toLanguage string)
 			return nil, fmt.Errorf("To Value is't valid!")
 		}
 	}
-	return gtranslate(ctx, text, fromLanguage, toLanguage)
+	return defaultClient.Translate(ctx, text, fromLanguage, toLanguage)
 }
