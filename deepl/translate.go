@@ -18,12 +18,34 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// makeRequestWithBody makes an HTTP request with pre-formatted body using minimal headers
-func makeRequestWithBody(ctx context.Context, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
+// makeRequestWithBody makes an HTTP request with pre-formatted body using minimal headers.
+// The httpClient parameter allows customization of HTTP client settings such as timeout,
+// transport, redirect policy, and cookie jar. If httpClient is nil, default settings
+// of the underlying client are used.
+func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
 	urlFull := "https://www2.deepl.com/jsonrpc"
 
-	// Create a new req client
-	client := req.C().SetTLSFingerprintRandomized()
+	// Create a new req client instance to avoid shared state
+	client := req.NewClient().SetTLSFingerprintRandomized()
+	
+	// If a custom HTTP client is provided, copy its configuration to the req client.
+
+	// If a custom HTTP client is provided, copy safe configuration values to the req client.
+	// Note: We intentionally do NOT copy the Transport to avoid overriding the TLS
+	// fingerprinting configuration set by SetTLSFingerprintRandomized.
+	if httpClient != nil {
+		underlyingClient := client.GetClient()
+		// Copy timeout from provided client
+		underlyingClient.Timeout = httpClient.Timeout
+		// Copy CheckRedirect policy if available
+		if httpClient.CheckRedirect != nil {
+			underlyingClient.CheckRedirect = httpClient.CheckRedirect
+		}
+		// Copy cookie jar if available
+		if httpClient.Jar != nil {
+			underlyingClient.Jar = httpClient.Jar
+		}
+	}
 
 	// Set headers to simulate browser request
 	headers := http.Header{
@@ -97,8 +119,13 @@ func makeRequestWithBody(ctx context.Context, postStr string, proxyURL string, d
 	return gjson.ParseBytes(body), nil
 }
 
-// TranslateByDeepL performs translation using DeepL API
-func TranslateByDeepL(ctx context.Context, sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
+// TranslateByDeepL performs translation using DeepL API.
+// httpClient is the HTTP client used to send requests to DeepL, allowing callers to
+// customize timeouts, proxies, and other transport settings. sourceLang and targetLang
+// specify the source and target languages (use "auto" or empty sourceLang for auto-detect),
+// text is the content to translate, tagHandling controls how markup is treated, proxyURL
+// optionally configures an outbound proxy, and dlSession carries the DeepL session token.
+func TranslateByDeepL(ctx context.Context, httpClient *http.Client, sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
 	if text == "" {
 		return DeepLTranslationResult{
 			Code:    http.StatusNotFound,
@@ -139,7 +166,7 @@ func TranslateByDeepL(ctx context.Context, sourceLang, targetLang, text string, 
 	postStr = handlerBodyMethod(id, postStr)
 
 	// Make translation request
-	result, err := makeRequestWithBody(ctx, postStr, proxyURL, dlSession)
+	result, err := makeRequestWithBody(ctx, httpClient, postStr, proxyURL, dlSession)
 	if err != nil {
 		return DeepLTranslationResult{
 			Code:    http.StatusServiceUnavailable,
