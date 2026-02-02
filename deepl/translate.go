@@ -27,7 +27,7 @@ func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr s
 
 	// Create a new req client instance to avoid shared state
 	client := req.NewClient().SetTLSFingerprintRandomized()
-	
+
 	// If a custom HTTP client is provided, copy its configuration to the req client.
 
 	// If a custom HTTP client is provided, copy safe configuration values to the req client.
