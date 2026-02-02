@@ -149,11 +149,12 @@ type Translated struct {
 // Translate translates text from one language to another.
 func (d *DeepL) Translate(ctx context.Context, text string, from string, to string) (*Translated, error) {
 	d.mu.RLock()
+	client := d.client
 	proxyURL := d.proxyURL
 	dlSession := d.dlSession
 	d.mu.RUnlock()
 
-	result, err := TranslateByDeepL(from, to, text, "", proxyURL, dlSession)
+	result, err := TranslateByDeepL(client, from, to, text, "", proxyURL, dlSession)
 	if err != nil {
 		return nil, err
 	}

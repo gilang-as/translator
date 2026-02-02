@@ -18,11 +18,22 @@ import (
 )
 
 // makeRequestWithBody makes an HTTP request with pre-formatted body using minimal headers
-func makeRequestWithBody(postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
+func makeRequestWithBody(httpClient *http.Client, postStr string, proxyURL string, dlSession string) (gjson.Result, error) {
 	urlFull := "https://www2.deepl.com/jsonrpc"
 
-	// Create a new req client
+	// Create a req client from the provided HTTP client
 	client := req.C().SetTLSFingerprintRandomized()
+	
+	// If a custom HTTP client is provided, use its transport and configuration
+	if httpClient != nil {
+		providedClient := client.GetClient()
+		// Copy timeout from provided client
+		providedClient.Timeout = httpClient.Timeout
+		// Copy transport if available
+		if httpClient.Transport != nil {
+			providedClient.Transport = httpClient.Transport
+		}
+	}
 
 	// Set headers to simulate browser request
 	headers := http.Header{
@@ -96,7 +107,7 @@ func makeRequestWithBody(postStr string, proxyURL string, dlSession string) (gjs
 }
 
 // TranslateByDeepL performs translation using DeepL API
-func TranslateByDeepL(sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
+func TranslateByDeepL(httpClient *http.Client, sourceLang, targetLang, text string, tagHandling string, proxyURL string, dlSession string) (DeepLTranslationResult, error) {
 	if text == "" {
 		return DeepLTranslationResult{
 			Code:    http.StatusNotFound,
@@ -137,7 +148,7 @@ func TranslateByDeepL(sourceLang, targetLang, text string, tagHandling string, p
 	postStr = handlerBodyMethod(id, postStr)
 
 	// Make translation request
-	result, err := makeRequestWithBody(postStr, proxyURL, dlSession)
+	result, err := makeRequestWithBody(httpClient, postStr, proxyURL, dlSession)
 	if err != nil {
 		return DeepLTranslationResult{
 			Code:    http.StatusServiceUnavailable,
