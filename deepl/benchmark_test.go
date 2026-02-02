@@ -8,13 +8,13 @@ import (
 )
 
 func BenchmarkNew(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = New()
 	}
 }
 
 func BenchmarkNewWithOptions(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = New(
 			WithHost("api.deepl.com"),
 			WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
@@ -27,7 +27,7 @@ func BenchmarkNewWithOptions(b *testing.B) {
 func BenchmarkHost(b *testing.B) {
 	d := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = d.Host()
 	}
 }
@@ -35,7 +35,7 @@ func BenchmarkHost(b *testing.B) {
 func BenchmarkSetHost(b *testing.B) {
 	d := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		d.SetHost("api.deepl.com")
 	}
 }
@@ -43,7 +43,7 @@ func BenchmarkSetHost(b *testing.B) {
 func BenchmarkProxyURL(b *testing.B) {
 	d := New(WithProxyURL("http://proxy:8080"))
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = d.ProxyURL()
 	}
 }
@@ -51,7 +51,7 @@ func BenchmarkProxyURL(b *testing.B) {
 func BenchmarkSetProxyURL(b *testing.B) {
 	d := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		d.SetProxyURL("http://proxy:8080")
 	}
 }
@@ -59,7 +59,7 @@ func BenchmarkSetProxyURL(b *testing.B) {
 func BenchmarkDLSession(b *testing.B) {
 	d := New(WithDLSession("test-session"))
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_ = d.DLSession()
 	}
 }
@@ -67,7 +67,7 @@ func BenchmarkDLSession(b *testing.B) {
 func BenchmarkSetDLSession(b *testing.B) {
 	d := New()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		d.SetDLSession("test-session")
 	}
 }
@@ -99,7 +99,7 @@ func BenchmarkTranslate(b *testing.B) {
 	d := New()
 	ctx := context.Background()
 	b.ResetTimer()
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_, _ = d.Translate(ctx, "Hello", "en", "id")
 	}
 }
