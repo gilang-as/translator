@@ -1,6 +1,7 @@
 package gt
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,7 +14,7 @@ func TestTranslateWithParam(t *testing.T) {
 		//From: "id",
 		To: params.ENGLISH,
 	}
-	translated, err := TranslateWithParam(value)
+	translated, err := TranslateWithParam(context.Background(), value)
 	if err != nil {
 		t.Error(err)
 	}
@@ -23,7 +24,7 @@ func TestTranslateWithParam(t *testing.T) {
 }
 
 func TestTranslate(t *testing.T) {
-	translated, err := Translate("Hello World", params.INDONESIAN)
+	translated, err := Translate(context.Background(), "Hello World", params.INDONESIAN)
 	if err != nil {
 		t.Error(err)
 	}
@@ -33,7 +34,7 @@ func TestTranslate(t *testing.T) {
 }
 
 func TestManualTranslate(t *testing.T) {
-	translated, err := ManualTranslate("Halo Semuanya", params.INDONESIAN, params.JAVANESE)
+	translated, err := ManualTranslate(context.Background(), "Halo Semuanya", params.INDONESIAN, params.JAVANESE)
 	if err != nil {
 		t.Error(err)
 	}
@@ -49,7 +50,7 @@ func TestTranslateWithParam2(t *testing.T) {
 		To:   "en",
 	}
 
-	translated, err := TranslateWithParam(value)
+	translated, err := TranslateWithParam(context.Background(), value)
 	assert.NoError(t, err, "should not return error")
 
 	expected := "This is the first sentence. This is the second sentence."

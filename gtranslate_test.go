@@ -1,6 +1,7 @@
 package gt
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -8,7 +9,7 @@ import (
 )
 
 func TestTranslate_v1(t *testing.T) {
-	data, err := translateV1("Halo Dunia", "id", "ja")
+	data, err := gtranslate(context.Background(), "Halo Dunia", "id", "ja")
 	if err != nil {
 		t.Error(err)
 		t.Fail()

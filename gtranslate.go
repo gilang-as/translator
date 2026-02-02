@@ -2,9 +2,10 @@ package gt
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"math/rand"
 	"net/http"
@@ -38,13 +39,13 @@ func extract(key string, value string) string {
 	return replace[:len(replace)-1]
 }
 
-func check() (*req, error) {
+func check(ctx context.Context) (*req, error) {
 	var (
 		err     error
 		client  = &http.Client{}
 		baseUrl = "https://translate." + HOST
 	)
-	request, err := http.NewRequest("GET", baseUrl, nil)
+	request, err := http.NewRequestWithContext(ctx, "GET", baseUrl, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Error! Initial Check Request.")
 	}
@@ -62,7 +63,7 @@ func check() (*req, error) {
 		return nil, fmt.Errorf("Error! Bad Network.")
 	}
 	defer response.Body.Close()
-	raw, err := ioutil.ReadAll(response.Body)
+	raw, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error! Parsing Data Check.")
 	}
@@ -96,7 +97,7 @@ type Translated struct {
 	From          TranslateFrom `json:"from"`
 }
 
-func translateV1(text string, from string, to string) (*Translated, error) {
+func gtranslate(ctx context.Context, text string, from string, to string) (*Translated, error) {
 	var (
 		rpcId   = "MkEWBc"
 		err     error
@@ -111,7 +112,7 @@ func translateV1(text string, from string, to string) (*Translated, error) {
 		return nil, fmt.Errorf("Base URL not Valid : %s !", baseUrl)
 	}
 
-	checkData, err := check()
+	checkData, err := check(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +163,7 @@ func translateV1(text string, from string, to string) (*Translated, error) {
 	}
 	body.Set("f.req", string(fReq))
 	var payload = bytes.NewBufferString(body.Encode())
-	request, err := http.NewRequest("POST", u.String(), payload)
+	request, err := http.NewRequestWithContext(ctx, "POST", u.String(), payload)
 	if err != nil {
 		return nil, fmt.Errorf("Error! Initial Request.")
 	}
@@ -185,7 +186,7 @@ func translateV1(text string, from string, to string) (*Translated, error) {
 	}
 	defer response.Body.Close()
 
-	raw, err := ioutil.ReadAll(response.Body)
+	raw, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error! GetCookies Body.")
 	}

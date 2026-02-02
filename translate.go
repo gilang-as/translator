@@ -1,13 +1,14 @@
 package gt
 
 import (
+	"context"
 	"fmt"
 
 	"golang.org/x/text/language"
 	"gopkg.gilang.dev/translator/params"
 )
 
-func TranslateWithParam(value params.Translate) (*Translated, error) {
+func TranslateWithParam(ctx context.Context, value params.Translate) (*Translated, error) {
 	var (
 		text string
 		from = "auto"
@@ -32,10 +33,10 @@ func TranslateWithParam(value params.Translate) (*Translated, error) {
 		}
 		from = value.From
 	}
-	return translateV1(text, from, to)
+	return gtranslate(ctx, text, from, to)
 }
 
-func Translate(text, toLanguage string) (*Translated, error) {
+func Translate(ctx context.Context, text, toLanguage string) (*Translated, error) {
 	if text == "" {
 		return nil, fmt.Errorf("Text Value is required!")
 	}
@@ -46,10 +47,10 @@ func Translate(text, toLanguage string) (*Translated, error) {
 			return nil, fmt.Errorf("To Value is't valid!")
 		}
 	}
-	return translateV1(text, "auto", toLanguage)
+	return gtranslate(ctx, text, "auto", toLanguage)
 }
 
-func ManualTranslate(text, fromLanguage, toLanguage string) (*Translated, error) {
+func ManualTranslate(ctx context.Context, text, fromLanguage, toLanguage string) (*Translated, error) {
 	if text == "" {
 		return nil, fmt.Errorf("Text Value is required!")
 	}
@@ -67,5 +68,5 @@ func ManualTranslate(text, fromLanguage, toLanguage string) (*Translated, error)
 			return nil, fmt.Errorf("To Value is't valid!")
 		}
 	}
-	return translateV1(text, fromLanguage, toLanguage)
+	return gtranslate(ctx, text, fromLanguage, toLanguage)
 }

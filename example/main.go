@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	gt "gopkg.gilang.dev/translator"
@@ -13,7 +14,7 @@ func main() {
 		From: "zh-cn",
 		To:   "en",
 	}
-	translated, err := gt.TranslateWithParam(value)
+	translated, err := gt.TranslateWithParam(context.Background(), value)
 	if err != nil {
 		panic(err)
 	}
