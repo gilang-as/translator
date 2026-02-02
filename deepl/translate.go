@@ -32,8 +32,10 @@ func makeRequestWithBody(ctx context.Context, httpClient *http.Client, postStr s
 	// This includes Timeout, Transport, CheckRedirect, and Jar settings.
 	if httpClient != nil {
 		underlyingClient := client.GetClient()
-		// Copy timeout from provided client
-		underlyingClient.Timeout = httpClient.Timeout
+		// Copy timeout from provided client only if it is explicitly set (non-zero)
+		if httpClient.Timeout != 0 {
+			underlyingClient.Timeout = httpClient.Timeout
+		}
 		// Copy transport if available
 		if httpClient.Transport != nil {
 			underlyingClient.Transport = httpClient.Transport
