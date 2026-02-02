@@ -2,6 +2,13 @@
 
 [![Actions Status](https://github.com/gilang-as/google-translate/actions/workflows/test.yaml/badge.svg)](https://github.com/gilang-as/google-translate/actions)
 
+> [!NOTE]
+> **Looking for the previous version?** The legacy Google Translate-only package is still available:
+> ```bash
+> go get gopkg.gilang.dev/translator@v1
+> ```
+> Documentation: [v1 branch](https://github.com/gilang-as/google-translate/tree/v1)
+
 A **free** and **unlimited** translation API supporting multiple backends (Google Translate, DeepL).
 
 ## Features
