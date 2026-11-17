@@ -1,5 +1,20 @@
 package googletranslate
 
+// Gender identifies a gendered translation alternative.
+type Gender string
+
+const (
+	GenderUnknown   Gender = ""
+	GenderFeminine  Gender = "feminine"
+	GenderMasculine Gender = "masculine"
+)
+
+// GenderAlternative is a translation offered for a particular gender.
+type GenderAlternative struct {
+	Text   string `json:"text"`
+	Gender Gender `json:"gender"`
+}
+
 // TranslateFromLanguage contains detected language information.
 type TranslateFromLanguage struct {
 	DidYouMean bool   `json:"did_you_mean"`
@@ -21,9 +36,10 @@ type TranslateFrom struct {
 
 // Translated represents a translation result.
 type Translated struct {
-	Text          string        `json:"text"`
-	Pronunciation *string       `json:"pronunciation"`
-	From          TranslateFrom `json:"from"`
+	Text               string              `json:"text"`
+	Pronunciation      *string             `json:"pronunciation"`
+	GenderAlternatives []GenderAlternative `json:"gender_alternatives,omitempty"`
+	From               TranslateFrom       `json:"from"`
 }
 
 // reqData holds the session data extracted from Google Translate page.

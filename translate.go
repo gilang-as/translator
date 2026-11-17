@@ -18,11 +18,12 @@ type Translator interface {
 
 // Translated represents a translation result.
 type Translated struct {
-	Text          string        `json:"text"`
-	Pronunciation *string       `json:"pronunciation"`
-	Alternatives  []string      `json:"alternatives,omitempty"`
-	From          TranslateFrom `json:"from"`
-	Method        string        `json:"method,omitempty"`
+	Text               string                              `json:"text"`
+	Pronunciation      *string                             `json:"pronunciation"`
+	Alternatives       []string                            `json:"alternatives,omitempty"`
+	GenderAlternatives []googletranslate.GenderAlternative `json:"gender_alternatives,omitempty"`
+	From               TranslateFrom                       `json:"from"`
+	Method             string                              `json:"method,omitempty"`
 }
 
 // TranslateFrom contains source language and text information.
@@ -63,8 +64,9 @@ func (g *googleTranslateAdapter) Translate(ctx context.Context, text, from, to s
 		return nil, err
 	}
 	return &Translated{
-		Text:          result.Text,
-		Pronunciation: result.Pronunciation,
+		Text:               result.Text,
+		Pronunciation:      result.Pronunciation,
+		GenderAlternatives: result.GenderAlternatives,
 		From: TranslateFrom{
 			Language: TranslateFromLanguage{
 				DidYouMean: result.From.Language.DidYouMean,

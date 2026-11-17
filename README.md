@@ -114,6 +114,10 @@ client := googletranslate.New(
 
 result, err := client.Translate(ctx, "Hello", "en", "id")
 
+// Prefer a gendered alternative when Google provides one.
+result, err = client.TranslateWithGender(ctx, "The author is a writer", "en", "es", googletranslate.GenderMasculine)
+fmt.Println(result.GenderAlternatives)
+
 // Runtime configuration
 client.SetHost("google.com")
 client.SetProxyURL("http://proxy:8080")
@@ -148,12 +152,16 @@ The `Translated` struct contains:
 | `Text` | string | The translated text |
 | `Pronunciation` | *string | Pronunciation (Google only) |
 | `Alternatives` | []string | Alternative translations (DeepL only) |
+| `GenderAlternatives` | []googletranslate.GenderAlternative | Gendered translations offered by Google |
 | `Method` | string | "Free" or "Pro" (DeepL only) |
 | `From.Language.Iso` | string | Detected source language code |
 | `From.Language.DidYouMean` | bool | Language correction suggested |
 | `From.Text.AutoCorrected` | bool | Text was auto-corrected |
 | `From.Text.Value` | *string | Corrected text value |
 | `From.Text.DidYouMean` | bool | Text correction suggested |
+
+`googletranslate.TranslateWithGender` selects a matching masculine or feminine alternative when available.
+`Translate` and requests without a matching alternative use the first returned translation.
 
 ## Examples
 
