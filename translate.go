@@ -11,19 +11,36 @@ import (
 	"gopkg.gilang.dev/translator/v2/params"
 )
 
+// Gender identifies a gendered translation alternative.
+type Gender = params.Gender
+
+const (
+	GenderUnknown   = params.GenderUnknown
+	GenderFeminine  = params.GenderFeminine
+	GenderMasculine = params.GenderMasculine
+)
+
+// GenderAlternative is a translation offered for a particular gender.
+type GenderAlternative = params.GenderAlternative
+
+// ErrUnsupportedOption reports a translation preference a provider cannot honor.
+var ErrUnsupportedOption = params.ErrUnsupportedOption
+
 // Translator is the common interface for all translation clients.
 type Translator interface {
 	Translate(ctx context.Context, text, from, to string) (*Translated, error)
+	// TranslateWithGender returns ErrUnsupportedOption when gender selection is unsupported.
+	TranslateWithGender(ctx context.Context, text, from, to string, gender Gender) (*Translated, error)
 }
 
 // Translated represents a translation result.
 type Translated struct {
-	Text               string                              `json:"text"`
-	Pronunciation      *string                             `json:"pronunciation"`
-	Alternatives       []string                            `json:"alternatives,omitempty"`
-	GenderAlternatives []googletranslate.GenderAlternative `json:"gender_alternatives,omitempty"`
-	From               TranslateFrom                       `json:"from"`
-	Method             string                              `json:"method,omitempty"`
+	Text               string              `json:"text"`
+	Pronunciation      *string             `json:"pronunciation"`
+	Alternatives       []string            `json:"alternatives,omitempty"`
+	GenderAlternatives []GenderAlternative `json:"gender_alternatives,omitempty"`
+	From               TranslateFrom       `json:"from"`
+	Method             string              `json:"method,omitempty"`
 }
 
 // TranslateFrom contains source language and text information.
@@ -55,11 +72,17 @@ const (
 
 // googleTranslateAdapter wraps googletranslate.GoogleTranslate to implement Translator.
 type googleTranslateAdapter struct {
-	client *googletranslate.GoogleTranslate
+	client interface {
+		TranslateWithGender(context.Context, string, string, string, Gender) (*googletranslate.Translated, error)
+	}
 }
 
 func (g *googleTranslateAdapter) Translate(ctx context.Context, text, from, to string) (*Translated, error) {
-	result, err := g.client.Translate(ctx, text, from, to)
+	return g.TranslateWithGender(ctx, text, from, to, GenderUnknown)
+}
+
+func (g *googleTranslateAdapter) TranslateWithGender(ctx context.Context, text, from, to string, gender Gender) (*Translated, error) {
+	result, err := g.client.TranslateWithGender(ctx, text, from, to, gender)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +110,11 @@ type deeplAdapter struct {
 }
 
 func (d *deeplAdapter) Translate(ctx context.Context, text, from, to string) (*Translated, error) {
-	result, err := d.client.Translate(ctx, text, from, to)
+	return d.TranslateWithGender(ctx, text, from, to, GenderUnknown)
+}
+
+func (d *deeplAdapter) TranslateWithGender(ctx context.Context, text, from, to string, gender Gender) (*Translated, error) {
+	result, err := d.client.TranslateWithGender(ctx, text, from, to, gender)
 	if err != nil {
 		return nil, err
 	}

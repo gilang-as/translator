@@ -99,7 +99,21 @@ deepl := gt.NewDeepLTranslator()
 // Translate with specific translator
 gt.TranslateWith(ctx, google, "Hello", "fr")
 gt.TranslateWith(ctx, deepl, "Hello", "fr")
+
+// Gender selection is part of the common Translator interface.
+result, err := google.TranslateWithGender(ctx, "The author is a writer", "en", "es", gt.GenderFeminine)
 ```
+
+`gt.GenderUnknown` (the zero value) uses ordinary translation. Google prefers a
+matching gendered alternative when one is available. DeepL returns an error
+wrapping `gt.ErrUnsupportedOption` for `gt.GenderMasculine` or `gt.GenderFeminine`;
+it never silently ignores the preference. Check it with
+`errors.Is(err, gt.ErrUnsupportedOption)`. Invalid gender values return a separate
+validation error.
+
+Custom implementations of `gt.Translator` must implement both `Translate` and
+`TranslateWithGender`. Shared gender types are defined in `params` and exposed
+through `gt`; the existing `googletranslate` names remain aliases for compatibility.
 
 ### Google Translate Client
 
@@ -152,7 +166,7 @@ The `Translated` struct contains:
 | `Text` | string | The translated text |
 | `Pronunciation` | *string | Pronunciation (Google only) |
 | `Alternatives` | []string | Alternative translations (DeepL only) |
-| `GenderAlternatives` | []googletranslate.GenderAlternative | Gendered translations offered by Google |
+| `GenderAlternatives` | []gt.GenderAlternative | Gendered translations offered by Google |
 | `Method` | string | "Free" or "Pro" (DeepL only) |
 | `From.Language.Iso` | string | Detected source language code |
 | `From.Language.DidYouMean` | bool | Language correction suggested |

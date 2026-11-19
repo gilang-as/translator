@@ -1,19 +1,18 @@
 package googletranslate
 
+import "gopkg.gilang.dev/translator/v2/params"
+
 // Gender identifies a gendered translation alternative.
-type Gender string
+type Gender = params.Gender
 
 const (
-	GenderUnknown   Gender = ""
-	GenderFeminine  Gender = "feminine"
-	GenderMasculine Gender = "masculine"
+	GenderUnknown   = params.GenderUnknown
+	GenderFeminine  = params.GenderFeminine
+	GenderMasculine = params.GenderMasculine
 )
 
 // GenderAlternative is a translation offered for a particular gender.
-type GenderAlternative struct {
-	Text   string `json:"text"`
-	Gender Gender `json:"gender"`
-}
+type GenderAlternative = params.GenderAlternative
 
 // TranslateFromLanguage contains detected language information.
 type TranslateFromLanguage struct {
