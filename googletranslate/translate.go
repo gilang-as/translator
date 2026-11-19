@@ -68,10 +68,17 @@ func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from stri
 
 // TranslateWithGender prefers the requested gender when Google offers alternatives.
 // If no matching alternative is available, the first translation is used.
+// Long texts are translated in chunks. Line breaks are preserved.
+// For multiple requests, From describes the first result; pronunciation and gender
+// alternatives are omitted because they do not describe the complete translation.
 func (gt *GoogleTranslate) TranslateWithGender(ctx context.Context, text string, from string, to string, gender Gender) (*Translated, error) {
 	if gender != GenderUnknown && gender != GenderFeminine && gender != GenderMasculine {
 		return nil, fmt.Errorf("invalid translation gender %q", gender)
 	}
+	return translateChunks(ctx, text, from, to, gender, gt.translateChunk)
+}
+
+func (gt *GoogleTranslate) translateChunk(ctx context.Context, text, from, to string, gender Gender) (*Translated, error) {
 	gt.mu.RLock()
 	host := gt.host
 	proxyURL := gt.proxyURL
@@ -100,11 +107,8 @@ func (gt *GoogleTranslate) TranslateWithGender(ctx context.Context, text string,
 	fullURL := baseURL + "/_/TranslateWebserverUi/data/batchexecute?" + params.Encode()
 
 	// Build request body
-	value := fmt.Sprintf(`[["%s","%s","%s",true],[null]]`, text, from, to)
-	fReq := fmt.Sprintf(`[[["MkEWBc",%q,null,"generic"]]]`, value)
-
 	body := url.Values{}
-	body.Set("f.req", fReq)
+	body.Set("f.req", translationRequest(text, from, to))
 
 	client := req.C()
 	if proxyURL != "" {

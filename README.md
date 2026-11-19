@@ -163,6 +163,13 @@ The `Translated` struct contains:
 `googletranslate.TranslateWithGender` selects a matching masculine or feminine alternative when available.
 `Translate` and requests without a matching alternative use the first returned translation.
 
+The Google client accepts unescaped text, preserves line breaks, and splits long
+lines into requests of at most 4500 bytes without splitting UTF-8 characters.
+When using `"auto"`, the first detected source language is reused for subsequent
+requests. For translations requiring multiple requests, `From` describes the first
+result; `Pronunciation` and `GenderAlternatives` are omitted rather than returning
+metadata for only part of the text.
+
 ## Examples
 
 See the [example](./example) directory for complete examples:
