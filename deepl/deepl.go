@@ -2,8 +2,11 @@ package deepl
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sync"
+
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 const (
@@ -176,6 +179,19 @@ func (d *DeepL) Translate(ctx context.Context, text string, from string, to stri
 		},
 		Method: result.Method,
 	}, nil
+}
+
+// TranslateWithGender translates normally for GenderUnknown. DeepL does not support
+// masculine or feminine preferences, which return params.ErrUnsupportedOption.
+func (d *DeepL) TranslateWithGender(ctx context.Context, text, from, to string, gender params.Gender) (*Translated, error) {
+	switch gender {
+	case params.GenderUnknown:
+		return d.Translate(ctx, text, from, to)
+	case params.GenderMasculine, params.GenderFeminine:
+		return nil, fmt.Errorf("%w: DeepL does not support gender preference %q", params.ErrUnsupportedOption, gender)
+	default:
+		return nil, fmt.Errorf("invalid translation gender %q", gender)
+	}
 }
 
 // TranslationError represents a translation error.

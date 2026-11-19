@@ -99,7 +99,21 @@ deepl := gt.NewDeepLTranslator()
 // Translate with specific translator
 gt.TranslateWith(ctx, google, "Hello", "fr")
 gt.TranslateWith(ctx, deepl, "Hello", "fr")
+
+// Gender selection is part of the common Translator interface.
+result, err := google.TranslateWithGender(ctx, "The author is a writer", "en", "es", gt.GenderFeminine)
 ```
+
+`gt.GenderUnknown` (the zero value) uses ordinary translation. Google prefers a
+matching gendered alternative when one is available. DeepL returns an error
+wrapping `gt.ErrUnsupportedOption` for `gt.GenderMasculine` or `gt.GenderFeminine`;
+it never silently ignores the preference. Check it with
+`errors.Is(err, gt.ErrUnsupportedOption)`. Invalid gender values return a separate
+validation error.
+
+Custom implementations of `gt.Translator` must implement both `Translate` and
+`TranslateWithGender`. Shared gender types are defined in `params` and exposed
+through `gt`; the existing `googletranslate` names remain aliases for compatibility.
 
 ### Google Translate Client
 
@@ -113,6 +127,10 @@ client := googletranslate.New(
 )
 
 result, err := client.Translate(ctx, "Hello", "en", "id")
+
+// Prefer a gendered alternative when Google provides one.
+result, err = client.TranslateWithGender(ctx, "The author is a writer", "en", "es", googletranslate.GenderMasculine)
+fmt.Println(result.GenderAlternatives)
 
 // Runtime configuration
 client.SetHost("google.com")
@@ -148,12 +166,23 @@ The `Translated` struct contains:
 | `Text` | string | The translated text |
 | `Pronunciation` | *string | Pronunciation (Google only) |
 | `Alternatives` | []string | Alternative translations (DeepL only) |
+| `GenderAlternatives` | []gt.GenderAlternative | Gendered translations offered by Google |
 | `Method` | string | "Free" or "Pro" (DeepL only) |
 | `From.Language.Iso` | string | Detected source language code |
 | `From.Language.DidYouMean` | bool | Language correction suggested |
 | `From.Text.AutoCorrected` | bool | Text was auto-corrected |
 | `From.Text.Value` | *string | Corrected text value |
 | `From.Text.DidYouMean` | bool | Text correction suggested |
+
+`googletranslate.TranslateWithGender` selects a matching masculine or feminine alternative when available.
+`Translate` and requests without a matching alternative use the first returned translation.
+
+The Google client accepts unescaped text, preserves line breaks, and splits long
+lines into requests of at most 4500 bytes without splitting UTF-8 characters.
+When using `"auto"`, the first detected source language is reused for subsequent
+requests. For translations requiring multiple requests, `From` describes the first
+result; `Pronunciation` and `GenderAlternatives` are omitted rather than returning
+metadata for only part of the text.
 
 ## Examples
 

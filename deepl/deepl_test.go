@@ -2,9 +2,12 @@ package deepl
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"testing"
 	"time"
+
+	"gopkg.gilang.dev/translator/v2/params"
 )
 
 func TestNew(t *testing.T) {
@@ -85,5 +88,15 @@ func TestTranslate(t *testing.T) {
 	}
 	if data.Text == "" {
 		t.Error("Translation returned empty text")
+	}
+}
+
+func TestTranslateWithUnknownGenderUsesNormalTranslation(t *testing.T) {
+	client := New()
+	result, err := client.TranslateWithGender(context.Background(), "", "en", "es", params.GenderUnknown)
+	var translationError *TranslationError
+	if result != nil || !errors.As(err, &translationError) || translationError.Code != http.StatusNotFound ||
+		translationError.Message != "No text to translate" {
+		t.Fatalf("unknown gender must follow normal translation validation: %+v, %v", result, err)
 	}
 }

@@ -63,6 +63,22 @@ func (gt *GoogleTranslate) check(ctx context.Context) (*reqData, error) {
 
 // Translate translates text from one language to another.
 func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from string, to string) (*Translated, error) {
+	return gt.TranslateWithGender(ctx, text, from, to, GenderUnknown)
+}
+
+// TranslateWithGender prefers the requested gender when Google offers alternatives.
+// If no matching alternative is available, the first translation is used.
+// Long texts are translated in chunks. Line breaks are preserved.
+// For multiple requests, From describes the first result; pronunciation and gender
+// alternatives are omitted because they do not describe the complete translation.
+func (gt *GoogleTranslate) TranslateWithGender(ctx context.Context, text string, from string, to string, gender Gender) (*Translated, error) {
+	if gender != GenderUnknown && gender != GenderFeminine && gender != GenderMasculine {
+		return nil, fmt.Errorf("invalid translation gender %q", gender)
+	}
+	return translateChunks(ctx, text, from, to, gender, gt.translateChunk)
+}
+
+func (gt *GoogleTranslate) translateChunk(ctx context.Context, text, from, to string, gender Gender) (*Translated, error) {
 	gt.mu.RLock()
 	host := gt.host
 	proxyURL := gt.proxyURL
@@ -91,11 +107,8 @@ func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from stri
 	fullURL := baseURL + "/_/TranslateWebserverUi/data/batchexecute?" + params.Encode()
 
 	// Build request body
-	value := fmt.Sprintf(`[["%s","%s","%s",true],[null]]`, text, from, to)
-	fReq := fmt.Sprintf(`[[["MkEWBc",%q,null,"generic"]]]`, value)
-
 	body := url.Values{}
-	body.Set("f.req", fReq)
+	body.Set("f.req", translationRequest(text, from, to))
 
 	client := req.C()
 	if proxyURL != "" {
@@ -147,14 +160,10 @@ func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from stri
 	// Parse inner JSON
 	data := gjson.Parse(innerJSON)
 
-	// Extract translation result
-	var textBuilder strings.Builder
-	sentences := data.Get("1.0.0.5").Array()
-	for _, sentence := range sentences {
-		textBuilder.WriteString(sentence.Get("0").String())
-		textBuilder.WriteString(" ")
+	translatedText, alternatives, err := translationText(data, gender)
+	if err != nil {
+		return nil, err
 	}
-	translatedText := strings.TrimSpace(textBuilder.String())
 
 	// Extract pronunciation
 	var pronunciation *string
@@ -188,8 +197,9 @@ func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from stri
 	}
 
 	return &Translated{
-		Text:          translatedText,
-		Pronunciation: pronunciation,
+		Text:               translatedText,
+		Pronunciation:      pronunciation,
+		GenderAlternatives: alternatives,
 		From: TranslateFrom{
 			Language: TranslateFromLanguage{
 				DidYouMean: didYouMeanLanguage,
@@ -202,4 +212,61 @@ func (gt *GoogleTranslate) Translate(ctx context.Context, text string, from stri
 			},
 		},
 	}, nil
+}
+
+func translationText(data gjson.Result, gender Gender) (string, []GenderAlternative, error) {
+	entries := data.Get("1.0").Array()
+	if len(entries) == 0 {
+		return "", nil, fmt.Errorf("error: translation response contains no text")
+	}
+
+	if entries[0].Get("0").Type == gjson.String {
+		var alternatives []GenderAlternative
+		for _, entry := range entries {
+			text := entry.Get("0")
+			if text.Type != gjson.String || strings.TrimSpace(text.String()) == "" {
+				continue
+			}
+			var alternativeGender Gender
+			// Google uses 1 for feminine and 2 for masculine.
+			switch entry.Get("7").Int() {
+			case 1:
+				alternativeGender = GenderFeminine
+			case 2:
+				alternativeGender = GenderMasculine
+			}
+			alternatives = append(alternatives, GenderAlternative{Text: text.String(), Gender: alternativeGender})
+		}
+		if len(alternatives) == 0 {
+			return "", nil, fmt.Errorf("error: translation response contains no text")
+		}
+		selected := alternatives[0].Text
+		if gender != GenderUnknown {
+			for _, alternative := range alternatives {
+				if alternative.Gender == gender {
+					selected = alternative.Text
+					break
+				}
+			}
+		}
+		return selected, alternatives, nil
+	}
+
+	sentences := entries[0].Get("5").Array()
+	if len(sentences) == 0 {
+		return "", nil, fmt.Errorf("error: translation response contains no text")
+	}
+	var parts []string
+	for _, sentence := range sentences {
+		text := sentence.Get("0")
+		if text.Type != gjson.String || text.String() == "" {
+			return "", nil, fmt.Errorf("error: translation response contains an incomplete sentence")
+		}
+		parts = append(parts, text.String())
+	}
+	text := strings.TrimSpace(strings.Join(parts, " "))
+	if text == "" {
+		return "", nil, fmt.Errorf("error: translation response contains no text")
+	}
+	return text, nil, nil
 }
